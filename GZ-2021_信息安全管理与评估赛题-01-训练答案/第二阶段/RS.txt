@@ -1,0 +1,173 @@
+RS#show running-config 
+!!
+switch convert mode stand-alone
+vsf member 1
+!!
+!
+no service password-encryption
+!
+hostname RS
+sysLocation China
+sysContact 400-810-9119
+!
+authentication logging enable
+banner login WARNING!!! Authorised accessonly, all of your done will be recorded! DisconnectedIMMEDIATELY if you are not an authorised user! Otherwise,we retain the right to pursue the legal responsibility
+!
+username admin privilege 15 password 0 admin
+!
+!
+!
+!
+info-center source debug level 8 prefix on channel 0
+info-center source debug level 8 prefix on channel 1
+snmp-server enable
+snmp-server securityip 172.16.100.21
+snmp-server trap-source 172.16.100.21
+snmp-server host 172.16.100.21 v2c ABC2021
+snmp-server enable traps
+snmp-server enable traps mac-notification
+!
+service dhcp
+!
+ip forward-protocol udp bootps
+!
+ip dhcp snooping enable
+ ip dhcp snooping binding enable
+ ip dhcp snooping binding arp
+!
+!
+!
+!
+!
+!
+!
+Interface Ethernet0
+!
+mtu 1600
+loopback-detection interval-time 10 10
+!
+loopback-detection control-recovery timeout 1800
+!         
+!
+vlan 1-2;40;100-101 
+!
+vlan 51
+ remote-span
+!
+Interface Ethernet1/0/1
+ switchport mode trunk
+ switchport trunk native vlan 101
+ ip dhcp snooping trust
+!
+Interface Ethernet1/0/2
+ switchport mode trunk
+ switchport trunk native vlan 101
+!
+Interface Ethernet1/0/3
+!
+Interface Ethernet1/0/4
+ switchport access vlan 40
+ loopback-detection control shutdown
+ ip dhcp snooping action shutdown
+!
+Interface Ethernet1/0/5
+!         
+Interface Ethernet1/0/6
+!
+Interface Ethernet1/0/7
+!
+Interface Ethernet1/0/8
+!
+Interface Ethernet1/0/9
+!
+Interface Ethernet1/0/10
+!
+Interface Ethernet1/0/11
+ rate-violation all 30000
+ rate-violation control shutdown
+ sflow counter-interval 120
+!
+Interface Ethernet1/0/12
+!
+Interface Ethernet1/0/13
+!
+Interface Ethernet1/0/14
+!
+Interface Ethernet1/0/15
+!
+Interface Ethernet1/0/16
+!
+Interface Ethernet1/0/17
+!
+Interface Ethernet1/0/18
+!
+Interface Ethernet1/0/19
+!
+Interface Ethernet1/0/20
+!
+Interface Ethernet1/0/21
+!
+Interface Ethernet1/0/22
+!
+Interface Ethernet1/0/23
+!
+Interface Ethernet1/0/24
+!
+Interface Ethernet1/0/25
+!
+Interface Ethernet1/0/26
+!
+Interface Ethernet1/0/27
+!
+Interface Ethernet1/0/28
+!
+ip vrf INTERNET
+!
+interface Vlan40
+ ip address 172.16.40.1 255.255.255.192
+  !forward protocol udp 67(active)!
+ ip helper-address 192.168.100.1
+!
+interface Vlan100
+ ipv6 address 2001:100::254/64
+ ipv6 router rip 
+ ip ospf authentication message-digest
+ ip ospf message-digest-key 1 md5 0 admin
+ ip address 192.168.100.254 255.255.255.0
+!
+interface Vlan101
+ ip address 192.168.101.1 255.255.255.0
+  !forward protocol udp 67(active)!
+ ip helper-address 192.168.100.1
+!
+interface Loopback1
+ ip vrf forwarding INTERNET
+!
+ip igmp snooping
+ip igmp snooping vlan 100
+ip igmp snooping vlan 100 static-group 228.10.10.7 source 192.168.100.1 interface Ethernet1/0/2
+!
+mac-address-table notification
+mac-address-table violation-trap-interval 35
+!
+router ospf 1
+ network 172.16.40.0/26 area 0
+ network 192.168.100.0/24 area 0
+ network 192.168.101.0/24 area 0
+!
+router ipv6 rip
+!
+!
+login
+!
+!
+monitor session 1 source interface Ethernet1/0/1 tx
+monitor session 1 source interface Ethernet1/0/1 rx
+monitor session 1 reflector-port interface Ethernet1/0/20
+monitor session 1 remote vlan 51
+!
+isolate-port apply l2
+isolate-port group 1 switchport interface Ethernet1/0/4
+captive-portal
+!
+end
